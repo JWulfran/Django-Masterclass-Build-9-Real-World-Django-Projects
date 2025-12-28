@@ -2,7 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from . import views
 
+app_name = 'MyApp'
+
 urlpatterns = [
     path('', views.index, name= 'index'),
-    path('item/', views.item),
+    path('<int:id>/', views.detail, name='detail'),
+    path('add/', views.create_item, name='create_item'),
 ]
