@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     #My App
     'MyApp',
+    'Users',
 ]
 
 MIDDLEWARE = [

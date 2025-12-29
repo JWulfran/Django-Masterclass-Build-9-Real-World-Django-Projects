@@ -19,6 +19,13 @@
             </div>
         </div>
     </nav>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="bg-green-500 text-white">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     {% block body %}
     
