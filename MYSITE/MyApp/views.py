@@ -2,48 +2,86 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Item
 from .forms import ItemForm
+from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 
 # Create your views here.
-def index(request):
-    item_list = Item.objects.all()
-    context = {
-        'item_list':item_list
-    }
-    return render(request,"MyApp/index.html", context)
 
-def detail(request, id):
-    item = Item.objects.get(id=id)
-    context ={
-        'item':item
-    }
-    return render(request, 'MyApp/detail.html', context)
+# @login_required
+# def index(request):
+#     item_list = Item.objects.all()
+#     context = {
+#         'item_list':item_list
+#     }
+#     return render(request,"MyApp/index.html", context)
 
-def create_item(request):
-    form = ItemForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            return redirect('MyApp:index') 
+class IndexClassView(ListView):
+    model = Item
+    template_name = "MyApp/index.html"
+    context_object_name = 'item_list'
 
-    context = {
-        'form': form
-    }
-    return render(request, 'MyApp/item-form.html', context)
+# def detail(request, id):
+#     item = Item.objects.get(id=id)
+#     context ={
+#         'item':item
+#     }
+#     return render(request, 'MyApp/detail.html', context)
 
-def update_item(request, id):
-    item = Item.objects.get(id=id)
-    form = ItemForm(request.POST or None, instance=item)
-    if form.is_valid():
-        form.save()
-        return redirect('MyApp:index')
-    context = {
-        'form': form
-    }
-    return render(request, 'MyApp/item-form.html', context)
+class FoodDetail(DetailView):
+    model = Item
+    template_name = "MyApp/detail.html"
+    context_object_name = 'item'
 
-def delete_item(request, id):
-    item = Item.objects.get(id=id)
-    if request.method == 'POST':
-        item.delete()
-        return redirect('MyApp:index')
-    return render(request, 'MyApp/item-delete.html')
+# def create_item(request):
+#     form = ItemForm(request.POST or None)
+#     if request.method == 'POST':
+#         if form.is_valid():
+#             form.save()
+#             return redirect('MyApp:index') 
+
+#     context = {
+#         'form': form
+#     }
+#     return render(request, 'MyApp/item-form.html', context)
+
+class ItemCreateView(CreateView):
+    model = Item
+    fields = ['item_name', 'item_desc', 'item_price', 'item_image']
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+# def update_item(request, id):
+#     item = Item.objects.get(id=id)
+#     form = ItemForm(request.POST or None, instance=item)
+#     if form.is_valid():
+#         form.save()
+#         return redirect('MyApp:index')
+#     context = {
+#         'form': form
+#     }
+#     return render(request, 'MyApp/item-form.html', context)
+
+class ItemUpdateView(UpdateView):
+    model = Item
+    fields = ['item_name', 'item_desc', 'item_price', 'item_image']
+    template_name_suffix = '_update_form'
+
+    def get_queryset(self):
+        return Item.objects.filter(user=self.request.user)
+
+# def delete_item(request, id):
+#     item = Item.objects.get(id=id)
+#     if request.method == 'POST':
+#         item.delete()
+#         return redirect('MyApp:index')
+#     return render(request, 'MyApp/item-delete.html')
+
+class ItemDeleteView(DeleteView):
+    model = Item
+    success_url = reverse_lazy('MyApp:index')
