@@ -1,22 +1,37 @@
 {% extends 'MyApp/base.html' %}
+{% load cache %}
 
 {% block body %}
     <div>
-        {% for item in item_list %}
-            <div class="m-10 flex w-1/2 mx-auto">
-                <div>
-                    <img class="w-64 rounded-lg" src="{{item.item_image}}" alt="">
+        {% cache 60 page_obj %}
+            {% for item in page_obj %}
+                <div class="m-10 flex w-1/2 mx-auto">
+                    <div>
+                        <img class="w-64 rounded-lg" src="{{item.item_image}}" alt="">
+                    </div>
+                    <div class="mx-16">
+                        <div class="font-bold">{{item.item_name}}</div>
+                        <div>{{item.user.username}}</div>
+                        <div>{{item.item_desc}}</div>
+                        <div class="text-green-700 font-bold">${{item.item_price}}</div>
+                    </div>
+                    <div>
+                        <a class="bg-red-500 text-white font-bold px-4 py-2 rounded-md" href="{% url 'MyApp:detail' item.id %}">View Details</a>
+                    </div>
                 </div>
-                <div class="mx-16">
-                    <div class="font-bold">{{item.item_name}}</div>
-                    <div>{{item.user.username}}</div>
-                    <div>{{item.item_desc}}</div>
-                    <div class="text-green-700 font-bold">${{item.item_price}}</div>
-                </div>
-                <div>
-                    <a class="bg-red-500 text-white font-bold px-4 py-2 rounded-md" href="{% url 'MyApp:detail' item.id %}">View Details</a>
-                </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% endcache %}
+
+    </div>
+    <div class="flex justify-center items-center space-x-4 my-8">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition ">Previous</a>
+        {% endif %}
+        <span>
+             Page {{page_obj.number}} of {{page_obj.paginator.num_pages}}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">Next</a>
+        {% endif %}
     </div>
 {% endblock %}
