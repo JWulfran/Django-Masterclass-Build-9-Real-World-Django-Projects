@@ -1,26 +1,30 @@
 {% extends 'MyApp/base.html' %}
-{% load cache %}
+{% load custom_filter %}
+
 
 {% block body %}
     <div>
-        {% cache 60 page_obj %}
-            {% for item in page_obj %}
-                <div class="m-10 flex w-1/2 mx-auto">
-                    <div>
-                        <img class="w-64 rounded-lg" src="{{item.item_image}}" alt="">
-                    </div>
-                    <div class="mx-16">
-                        <div class="font-bold">{{item.item_name}}</div>
-                        <div>{{item.user.username}}</div>
-                        <div>{{item.item_desc}}</div>
-                        <div class="text-green-700 font-bold">${{item.item_price}}</div>
-                    </div>
-                    <div>
-                        <a class="bg-red-500 text-white font-bold px-4 py-2 rounded-md" href="{% url 'MyApp:detail' item.id %}">View Details</a>
-                    </div>
+       
+        {% for item in page_obj %}
+            <div class="m-10 flex w-1/2 mx-auto">
+                <div>
+                    <img class="w-64 rounded-lg" src="{{item.item_image}}" alt="">
                 </div>
-            {% endfor %}
-        {% endcache %}
+                <div class="mx-16">
+                    <div class="font-bold">{{item.item_name | upper }}</div>
+                    <div>{{item.user.username}}</div>
+                    <div>{{item.item_desc|lower|truncatechars:10}}</div>
+                <div class="text-green-700 font-bold">{{item.item_price|currency}}</div>
+                <div>{{item.item_price | discount:20}}</div>
+                {% comment %} <div>{{item.created_at|date:"d M Y"}}</div><!-- d: day; M: month; Y: year; H:hour; i: minute --> {% endcomment %}
+                <div>{{item.created_at|timesince}}</div>
+                </div>
+                <div>
+                    <a class="bg-red-500 text-white font-bold px-4 py-2 rounded-md" href="{% url 'MyApp:detail' item.id %}">View Details</a>
+                </div>
+            </div>
+        {% endfor %}
+        
 
     </div>
     <div class="flex justify-center items-center space-x-4 my-8">

@@ -13,6 +13,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 import logging
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 # Create your views here.
  
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     logger.info("Index view accessed.")
+    logger.info(f"User [{timezone.now()}]: {request.user} requesting index page from IP: {request.META.get('REMOTE_ADDR')}")
     item_list = Item.objects.all()
     logger.debug(f"Found {item_list.count()} items in the database.")
     paginator = Paginator(item_list, 5)
@@ -45,7 +47,7 @@ def detail(request, id):
         logger.debug(f"Item found: {item}.")
     except Exception as e:
         # logger.error(f"Error retrieving item with id {id}: {e}")
-        logger.error("Error retrieving item with id : ", id, e)
+        logger.error("Error retrieving item with id %s: %s", id, e)
         raise
     
     context ={
@@ -58,25 +60,27 @@ def detail(request, id):
 #     template_name = "MyApp/detail.html"
 #     context_object_name = 'item'
 
-# def create_item(request):
-#     form = ItemForm(request.POST or None)
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             form.save()
-#             return redirect('MyApp:index') 
+def create_item(request):
+    form = ItemForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('MyApp:index') 
+        # else:
+        #     print(form.errors['item_price'])
 
-#     context = {
-#         'form': form
-#     }
-#     return render(request, 'MyApp/item-form.html', context)
+    context = {
+        'form': form
+    }
+    return render(request, 'MyApp/item-form.html', context)
 
-class ItemCreateView(CreateView):
-    model = Item
-    fields = ['item_name', 'item_desc', 'item_price', 'item_image']
+# class ItemCreateView(CreateView):
+#     model = Item
+#     fields = ['item_name', 'item_desc', 'item_price', 'item_image']
 
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+#     def form_valid(self, form):
+#         form.instance.user = self.request.user
+#         return super().form_valid(form)
 
 
 # def update_item(request, id):
