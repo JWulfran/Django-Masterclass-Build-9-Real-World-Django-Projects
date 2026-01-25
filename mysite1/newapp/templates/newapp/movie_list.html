@@ -1,3 +1,8 @@
+<form action="" method="GET">
+    <input type = "search" name ="movie_name">
+    <button type="submit">Search</button>
+</form>
+
 {% for movie in movie_objects %}
     <p>{{ movie.name }} - {{ movie.rating }}</p>
 {% endfor %}
