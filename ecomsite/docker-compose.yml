@@ -1,0 +1,16 @@
+name: docker-project
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: app-image
+    container_name: app-container
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    
